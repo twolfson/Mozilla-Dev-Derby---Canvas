@@ -1,0 +1,52 @@
+<!doctype>
+<html>
+<head>
+  <title>Color queue test</title>
+</head>
+<body>
+&nbsp;
+<script>
+  var body = document.body,
+      lastR = 255,
+      lastG = 255,
+      lastB = 255,
+  // Change color every 100ms
+      waitTime = 100,
+      queue = [];
+
+function execQueue() {
+  var nextColor = queue.pop();
+  if( !nextColor ) {
+    return;
+  }
+
+  body.style.background = 'rgb(' + nextColor.join(',') + ')';
+  setTimeout(execQueue, waitTime);
+}
+
+function transitionTo(r, g, b, time) {
+  var i,
+      diffR = r - lastR,
+      diffG = g - lastG,
+      diffB = b - lastB,
+      ratio;
+
+  for( i = 0; i < time; i += waitTime ) {
+    ratio = i/time;
+
+    // Add current ratio of color to the queue
+    queue.unshift([lastR + diffR*ratio, lastG + diffG*ratio, lastB + diffB*ratio]);
+  }
+
+  // Make sure we reach our target color
+  queue.unshift([r,g,b]);
+}
+
+// Transition to black in 500s
+transitionTo(0, 0, 0, 500);
+
+// Start the queue
+execQueue();
+</script>
+</body>
+</html>
