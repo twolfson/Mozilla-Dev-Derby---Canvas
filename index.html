@@ -17,11 +17,12 @@
 
       text-align: center;
       cursor: default;
+      color: #CCC;
     }
 
     #canvas {
       /* TODO: Use subtle background */
-      background: #666;
+      background: #333;
     }
 	</style>
 </head>
@@ -35,7 +36,9 @@
       headerMoveText = "Move your mouse around the screen.",
       canvas = document.getElementById('canvas'),
       ctx = canvas.getContext('2d'),
-      posStack = [];
+      lastX,
+      lastY,
+      _gradientQueue = ['#F0F', '#0F0'];
 
   // Set canvas to full screen
   canvas.width  = window.innerWidth;
@@ -85,16 +88,34 @@
   }
 
   function heatStroke(x1, y1, x2, y2) {
+    // Copy the gradeient queue
+    var gradientQueue = _gradientQueue.concat([]);
+
     // Change the color to green
-    ctx.strokeStyle = '#0F0';
+    ctx.strokeStyle = gradientQueue.pop();
 
     // Draw out the stroke
     _drawLine(x1, y1, x2, y2);
 
+    // Start the color transitions in 1 second
     setTimeout(function () {
-      // Change the color to purple and overwrite stroke
-      ctx.strokeStyle = '#F0F';
-      _drawLine(x1, y1, x2, y2);
+      function smoothTransition() {
+        // Retrieve the next gradient
+        var nextGradient = gradientQueue.pop();
+        if( !nextGradient ) {
+          return;
+        }
+
+        // Change the color to the next gradient and overwrite stroke
+        ctx.strokeStyle = nextGradient;
+        _drawLine(x1, y1, x2, y2);
+
+        // Queue up the next transition
+        setTimeout(smoothTransition, 100);
+      }
+
+      // Begin smooth transition loop
+      smoothTransition();
     }, 1000);
   }
 
