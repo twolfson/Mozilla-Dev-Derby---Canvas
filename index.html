@@ -8,25 +8,108 @@
 			margin: 0;
 			padding: 0;
 		}
-    
+
     #header {
-      position: absolute:
+      position: absolute;
       top: 0;
       left: 0;
       right: 0;
+
       text-align: center;
+      cursor: default;
     }
-    
+
     #canvas {
       width: 100%;
       height: 100%;
       /* TODO: Use subtle background */
-      background: #CCC;
+      background: #666;
     }
 	</style>
 </head>
 <body>
-<h1 id="header"></h1>
+<h1 id="header">Touch anywhere to start.</h1>
 <canvas id="canvas"></canvas>
+<script>
+  var body = document.body,
+      header = document.getElementById('header'),
+      canvas = document.getElementById('canvas'),
+      ctx = canvas.getContext('2d'),
+      lastX,
+      lastY;
+
+  // Set canvas to full screen
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  function _eventWrapper(fn) {
+    return function (e) {
+      // Get the true event
+      e = e || window.event;
+
+      // Method to prevent default behavior
+      if( !e.preventDefault ) {
+        e.preventDefault = function () {
+          e.returnValue = false;
+        };
+      }
+
+      // Method to stop propagation
+      if( !e.stopPropagation ) {
+        e.stopPropagation = function () {
+          e.cancelBubble = true;
+        };
+      }
+
+      // Method to stop everything
+      e.stopNormal = function () {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+
+      // Invoke fn with wrapped event
+      fn(e);
+    }
+  }
+
+  var _moveFn = _eventWrapper(function (e) {
+    // Stop normal default behavior/bubbling
+    e.stopNormal();
+
+    // Continue path
+    var x = e.clientX,
+        y = e.clientY;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  }),
+
+  _upFn = _eventWrapper(function (e) {
+    // Stop normal default behavior/bubbling
+    e.stopNormal();
+
+    // TODO: Terminate path
+    ctx.closePath();
+
+    // Remove bindings
+    body.onmousemove = null;
+    body.onmouseup = null;
+  });
+
+  // Bind onclick watching
+  body.onmousedown = _eventWrapper(function (e) {
+    // Stop normal default behavior/bubbling
+    e.stopNormal();
+
+    // Kick off the path
+    var x = e.clientX,
+        y = e.clientY;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+
+    // Bind any motion and halting
+    body.onmousemove = _moveFn;
+    body.onmouseup = _upFn;
+  });
+</script>
 </body>
 </html>
