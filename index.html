@@ -36,35 +36,85 @@
       headerMoveText = "Move your mouse around the screen.",
       canvas = document.getElementById('canvas'),
       ctx = canvas.getContext('2d'),
+      waitTime = 50,
       lastX,
-      lastY;
+      lastY,
+      nextX,
+      nextY,
+      drawing = false;
+
+  // Set canvas to full screen
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
 
   // Create the gradient queue
   // Green -> Yellow -> Red -> Purple
   // TODO: Massively increase size of stroke
   // TODO: Break down strokes so that each is at most 5px distance from the next
   // TODO: Execute color queue on them
-  // TODO: Do a timer instead of mousemove (in case of idle click)
-  function createGradientQueue(x1, y1, x2, y2) {
-    // Begin with green
-    var _gradientQueue = ['#0F0'],
-        gradient;
+  function ColorChanger(setterFn) {
+    var queue = [],
+    // Assume white
+        lastR = 255,
+        lastG = 255,
+        lastB = 255;
 
-    // Finish with purple
-    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop(0, '#F0F');
-    gradient.addColorStop(1, '#F0F');
-    _gradientQueue.push(gradient);
-    
-    // Reverse removal order (stack to queue)
-    _gradientQueue.reverse();
+    this.start = function () {
+      var waitTime = this.waitTime;
 
-    return _gradientQueue;
+      function execQueue() {
+        var nextColor = queue.pop();
+        if( !nextColor ) {
+          return;
+        }
+
+        // Call the setter function
+        setterFn.apply(this, nextColor);
+
+        // Async queue up the next color change
+        setTimeout(execQueue, waitTime);
+      }
+
+      // Begin the async loop
+      execQueue();
+    };
+
+    this.setColor = function (r, g, b) {
+      setterFn(r, g, b);
+
+      // Save the current colors
+      lastR = r;
+      lastG = g;
+      lastB = b;
+    };
+
+    this.addTransition = function (r, g, b, time) {
+      var i,
+          diffR = r - lastR,
+          diffG = g - lastG,
+          diffB = b - lastB,
+          ratio;
+
+      for( i = 0; i < time; i += this.waitTime ) {
+        ratio = i/time;
+
+        // Add current ratio of color to the queue
+        queue.unshift([lastR + diffR*ratio, lastG + diffG*ratio, lastB + diffB*ratio]);
+      }
+
+      // Make sure we reach our target color
+      queue.unshift([r,g,b]);
+
+      // Save the current colors
+      lastR = r;
+      lastG = g;
+      lastB = b;
+    }
+
+    return this;
   }
-
-  // Set canvas to full screen
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
+  // Set wait time for all to 50ms
+  ColorChanger.prototype = {'waitTime': 50};
 
   function _eventWrapper(fn) {
     return function (e) {
@@ -110,34 +160,34 @@
   }
 
   function heatStroke(x1, y1, x2, y2) {
-    // Copy the gradeient queue
-    var gradientQueue = createGradientQueue(x1, y1, x2, y2);
+    // Create new color changer
+    var colorChanger = new ColorChanger(function (r, g, b) {
+      // Change stroke color
+      var colorStr = 'rgb(' + (r | 0) + ',' + (g | 0)  + ',' + (b | 0)  + ')';
+      ctx.strokeStyle = colorStr;
+
+      // Draw out the stroke
+      _drawLine(x1, y1, x2, y2);
+    });
 
     // Change the color to green
-    ctx.strokeStyle = gradientQueue.pop();
+    colorChanger.setColor(0, 255, 0);
 
-    // Draw out the stroke
-    _drawLine(x1, y1, x2, y2);
+    // Transition to yellow
+    colorChanger.addTransition(255, 255, 0, 200);
 
-    // Start the color transitions in 1 second
+    // Then red
+    colorChanger.addTransition(204, 0, 0, 500);
+
+    // Then pink/purple
+    colorChanger.addTransition(153, 0, 153, 300);
+
+    // Then navy
+    colorChanger.addTransition(0, 0, 51, 500);
+
+    // Start the transitions in 1 second
     setTimeout(function () {
-      function smoothTransition() {
-        // Retrieve the next gradient
-        var nextGradient = gradientQueue.pop();
-        if( !nextGradient ) {
-          return;
-        }
-
-        // Change the color to the next gradient and overwrite stroke
-        ctx.strokeStyle = nextGradient;
-        _drawLine(x1, y1, x2, y2);
-
-        // Queue up the next transition
-        setTimeout(smoothTransition, 100);
-      }
-
-      // Begin smooth transition loop
-      smoothTransition();
+      colorChanger.start();
     }, 1000);
   }
 
@@ -146,13 +196,8 @@
     e.stopNormal();
 
     // Mark the stroke down
-    var x = e.clientX,
-        y = e.clientY;
-    heatStroke(lastX, lastY, x, y);
-
-    // Save position for next move
-    lastX = x;
-    lastY = y;
+    nextX = e.clientX;
+    nextY = e.clientY;
   }),
 
   _upFn = _eventWrapper(function (e) {
@@ -173,8 +218,8 @@
     e.stopNormal();
 
     // Memoize current location
-    lastX = e.clientX;
-    lastY = e.clientY;
+    lastX = nextX = e.clientX;
+    lastY = nextY = e.clientY;
 
     // Change header text
     header.innerHTML = headerMoveText;
@@ -182,7 +227,24 @@
     // Bind any motion and halting
     body.onmousemove = _moveFn;
     body.onmouseup = _upFn;
+    drawing = true;
+    drawHeatStroke();
   });
+
+  function drawHeatStroke() {
+    if( !drawing ) {
+      return;
+    }
+
+    // Draw the line
+    heatStroke(lastX, lastY, nextX, nextY);
+    // Save position for next move
+    lastX = nextX;
+    lastY = nextY;
+
+    // Async call self
+    setTimeout(drawHeatStroke, waitTime);
+  }
 </script>
 </body>
 </html>

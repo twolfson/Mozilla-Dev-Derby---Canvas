@@ -8,7 +8,7 @@
 <script>
 var body = document.body;
 
-function colorChanger(setterFn) {
+function ColorChanger(setterFn) {
   var queue = [],
   // Assume white
       lastR = 255,
@@ -69,12 +69,11 @@ function colorChanger(setterFn) {
 
   return this;
 }
-
 // Set wait time for all to 50ms
-colorChanger.prototype = {'waitTime': 50};
+ColorChanger.prototype = {'waitTime': 50};
 
 // Create body color changer
-var bodyColorChanger = new colorChanger(function (r, g, b) {
+var bodyColorChanger = new ColorChanger(function (r, g, b) {
   var colorStr = 'rgb(' + (r | 0) + ',' + (g | 0)  + ',' + (b | 0)  + ')';
   body.style.background = colorStr;
 });
