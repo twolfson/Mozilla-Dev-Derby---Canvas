@@ -37,8 +37,72 @@
       canvas = document.getElementById('canvas'),
       ctx = canvas.getContext('2d'),
       lastX,
-      lastY,
-      _gradientQueue = ['#F0F', '#0F0'];
+      lastY;
+
+  // Create the gradient queue
+  // Green -> Yellow -> Red -> Purple
+  function createGradientQueue(x1, y1, x2, y2) {
+    // Begin with green
+    var _gradientQueue = ['#0F0'],
+        gradient;
+
+    // Fade to purple
+    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    gradient.addColorStop(.1, '#F0F');
+    gradient.addColorStop(.2, '#0F0');
+    _gradientQueue.push(gradient);
+    
+    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    gradient.addColorStop(.2, '#F0F');
+    gradient.addColorStop(.3, '#0F0');
+    _gradientQueue.push(gradient);
+    
+    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    gradient.addColorStop(.3, '#F0F');
+    gradient.addColorStop(.4, '#0F0');
+    _gradientQueue.push(gradient);
+    
+    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    gradient.addColorStop(.4, '#F0F');
+    gradient.addColorStop(.5, '#0F0');
+    _gradientQueue.push(gradient);
+    
+    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    gradient.addColorStop(.5, '#F0F');
+    gradient.addColorStop(.6, '#0F0');
+    _gradientQueue.push(gradient);
+    
+    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    gradient.addColorStop(.6, '#F0F');
+    gradient.addColorStop(.7, '#0F0');
+    _gradientQueue.push(gradient);
+    
+    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    gradient.addColorStop(.7, '#F0F');
+    gradient.addColorStop(.8, '#0F0');
+    _gradientQueue.push(gradient);
+    
+    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    gradient.addColorStop(.8, '#F0F');
+    gradient.addColorStop(.9, '#0F0');
+    _gradientQueue.push(gradient);
+    
+    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    gradient.addColorStop(.9, '#F0F');
+    gradient.addColorStop(1, '#0F0');
+    _gradientQueue.push(gradient);
+    
+    // Finish with purple
+    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    gradient.addColorStop(0, '#F0F');
+    gradient.addColorStop(1, '#F0F');
+    _gradientQueue.push(gradient);
+    
+    // Reverse removal order (stack to queue)
+    _gradientQueue.reverse();
+
+    return _gradientQueue;
+  }
 
   // Set canvas to full screen
   canvas.width  = window.innerWidth;
@@ -89,7 +153,7 @@
 
   function heatStroke(x1, y1, x2, y2) {
     // Copy the gradeient queue
-    var gradientQueue = _gradientQueue.concat([]);
+    var gradientQueue = createGradientQueue(x1, y1, x2, y2);
 
     // Change the color to green
     ctx.strokeStyle = gradientQueue.pop();
