@@ -20,8 +20,6 @@
     }
 
     #canvas {
-      width: 100%;
-      height: 100%;
       /* TODO: Use subtle background */
       background: #666;
     }
@@ -33,10 +31,11 @@
 <script>
   var body = document.body,
       header = document.getElementById('header'),
+      headerInitText = header.innerHTML,
+      headerMoveText = "Move your mouse around the screen.",
       canvas = document.getElementById('canvas'),
       ctx = canvas.getContext('2d'),
-      lastX,
-      lastY;
+      posStack = [];
 
   // Set canvas to full screen
   canvas.width  = window.innerWidth;
@@ -72,23 +71,53 @@
     }
   }
 
+  function _drawLine(x1, y1, x2, y2) {
+    // Start path
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+
+    // Continue path
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    // Terminate path
+    ctx.closePath();
+  }
+
+  function heatStroke(x1, y1, x2, y2) {
+    // Change the color to green
+    ctx.strokeStyle = '#0F0';
+
+    // Draw out the stroke
+    _drawLine(x1, y1, x2, y2);
+
+    setTimeout(function () {
+      // Change the color to purple and overwrite stroke
+      ctx.strokeStyle = '#F0F';
+      _drawLine(x1, y1, x2, y2);
+    }, 1000);
+  }
+
   var _moveFn = _eventWrapper(function (e) {
     // Stop normal default behavior/bubbling
     e.stopNormal();
 
-    // Continue path
+    // Mark the stroke down
     var x = e.clientX,
         y = e.clientY;
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    heatStroke(lastX, lastY, x, y);
+
+    // Save position for next move
+    lastX = x;
+    lastY = y;
   }),
 
   _upFn = _eventWrapper(function (e) {
     // Stop normal default behavior/bubbling
     e.stopNormal();
 
-    // TODO: Terminate path
-    ctx.closePath();
+    // Reset header text
+    header.innerHTML = headerInitText;
 
     // Remove bindings
     body.onmousemove = null;
@@ -100,11 +129,12 @@
     // Stop normal default behavior/bubbling
     e.stopNormal();
 
-    // Kick off the path
-    var x = e.clientX,
-        y = e.clientY;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
+    // Memoize current location
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    // Change header text
+    header.innerHTML = headerMoveText;
 
     // Bind any motion and halting
     body.onmousemove = _moveFn;
