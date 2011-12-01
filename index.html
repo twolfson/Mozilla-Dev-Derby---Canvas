@@ -46,12 +46,15 @@
   // Set canvas to full screen
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
+  
+  // Set brush width to thick
+  ctx.lineWidth = 20;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
 
   // Create the gradient queue
   // Green -> Yellow -> Red -> Purple
-  // TODO: Massively increase size of stroke
   // TODO: Break down strokes so that each is at most 5px distance from the next
-  // TODO: Execute color queue on them
   function ColorChanger(setterFn) {
     var queue = [],
     // Assume white
@@ -113,8 +116,8 @@
 
     return this;
   }
-  // Set wait time for all to 50ms
-  ColorChanger.prototype = {'waitTime': 50};
+  // Set wait time for all to the same as the other waitTimes
+  ColorChanger.prototype = {'waitTime': waitTime};
 
   function _eventWrapper(fn) {
     return function (e) {
@@ -192,25 +195,26 @@
   }
 
   var _moveFn = _eventWrapper(function (e) {
-    // Stop normal default behavior/bubbling
-    e.stopNormal();
+        // Stop normal default behavior/bubbling
+        e.stopNormal();
 
-    // Mark the stroke down
-    nextX = e.clientX;
-    nextY = e.clientY;
-  }),
+        // Mark the stroke down
+        nextX = e.clientX;
+        nextY = e.clientY;
+      }),
 
-  _upFn = _eventWrapper(function (e) {
-    // Stop normal default behavior/bubbling
-    e.stopNormal();
+      _upFn = _eventWrapper(function (e) {
+        // Stop normal default behavior/bubbling
+        e.stopNormal();
 
-    // Reset header text
-    header.innerHTML = headerInitText;
+        // Reset header text
+        header.innerHTML = headerInitText;
 
-    // Remove bindings
-    body.onmousemove = null;
-    body.onmouseup = null;
-  });
+        // Remove bindings
+        body.onmousemove = null;
+        body.onmouseup = null;
+        drawing = false;
+      });
 
   // Bind onclick watching
   body.onmousedown = _eventWrapper(function (e) {
@@ -231,6 +235,7 @@
     drawHeatStroke();
   });
 
+  // Only watch mouse position over the course of the wait time
   function drawHeatStroke() {
     if( !drawing ) {
       return;

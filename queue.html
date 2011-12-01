@@ -85,16 +85,16 @@ var bodyColorChanger = new ColorChanger(function (r, g, b) {
 bodyColorChanger.setColor(0, 255, 0);
 
 // Transition to yellow
-bodyColorChanger.addTransition(255, 255, 0, 200);
+bodyColorChanger.addTransition(255, 255, 0, 400);
 
 // Then red
-bodyColorChanger.addTransition(204, 0, 0, 500);
+bodyColorChanger.addTransition(204, 0, 0, 1000);
 
 // Then pink/purple
-bodyColorChanger.addTransition(153, 0, 153, 300);
+bodyColorChanger.addTransition(153, 0, 153, 600);
 
 // Then navy
-bodyColorChanger.addTransition(0, 0, 51, 500);
+bodyColorChanger.addTransition(0, 0, 51, 1000);
 
 // Start the queue
 bodyColorChanger.start();
