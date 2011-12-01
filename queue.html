@@ -11,16 +11,18 @@
       lastG = 255,
       lastB = 255,
   // Change color every 100ms
-      waitTime = 100,
+      waitTime = 50,
       queue = [];
 
 function execQueue() {
-  var nextColor = queue.pop();
+  var nextColor = queue.pop(),
+      colorStr;
   if( !nextColor ) {
     return;
   }
 
-  body.style.background = 'rgb(' + nextColor.join(',') + ')';
+  colorStr = 'rgb(' + nextColor.join(',') + ')';
+  body.style.background = colorStr;
   setTimeout(execQueue, waitTime);
 }
 
@@ -29,21 +31,51 @@ function transitionTo(r, g, b, time) {
       diffR = r - lastR,
       diffG = g - lastG,
       diffB = b - lastB,
+      nextR,
+      nextG,
+      nextB,
       ratio;
 
   for( i = 0; i < time; i += waitTime ) {
     ratio = i/time;
+    nextR = (lastR + diffR * ratio) | 0;
+    nextG = (lastG + diffG * ratio) | 0;
+    nextB = (lastB + diffB * ratio) | 0;
+    
 
     // Add current ratio of color to the queue
-    queue.unshift([lastR + diffR*ratio, lastG + diffG*ratio, lastB + diffB*ratio]);
+    queue.unshift([nextR, nextG, nextB]);
   }
 
   // Make sure we reach our target color
   queue.unshift([r,g,b]);
+  
+  // Save the current colors
+  lastR = r;
+  lastG = g;
+  lastB = b;
 }
 
 // Transition to black in 500s
-transitionTo(0, 0, 0, 500);
+// transitionTo(0, 0, 0, 500);
+
+// Start with green
+lastR = 0;
+lastG = 255;
+lastB = 0;
+body.style.background = 'rgb(' + lastR + ',' + lastG + ',' + lastB + ')';
+
+// Transition to yellow
+transitionTo(255, 255, 0, 200);
+
+// Then red
+transitionTo(204, 0, 0, 500);
+
+// Then pink/purple
+transitionTo(153, 0, 153, 300);
+
+// Then navy
+transitionTo(0, 0, 51, 500);
 
 // Start the queue
 execQueue();
