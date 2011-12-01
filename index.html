@@ -41,57 +41,15 @@
 
   // Create the gradient queue
   // Green -> Yellow -> Red -> Purple
+  // TODO: Massively increase size of stroke
+  // TODO: Break down strokes so that each is at most 5px distance from the next
+  // TODO: Execute color queue on them
+  // TODO: Do a timer instead of mousemove (in case of idle click)
   function createGradientQueue(x1, y1, x2, y2) {
     // Begin with green
     var _gradientQueue = ['#0F0'],
         gradient;
 
-    // Fade to purple
-    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop(.1, '#F0F');
-    gradient.addColorStop(.2, '#0F0');
-    _gradientQueue.push(gradient);
-    
-    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop(.2, '#F0F');
-    gradient.addColorStop(.3, '#0F0');
-    _gradientQueue.push(gradient);
-    
-    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop(.3, '#F0F');
-    gradient.addColorStop(.4, '#0F0');
-    _gradientQueue.push(gradient);
-    
-    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop(.4, '#F0F');
-    gradient.addColorStop(.5, '#0F0');
-    _gradientQueue.push(gradient);
-    
-    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop(.5, '#F0F');
-    gradient.addColorStop(.6, '#0F0');
-    _gradientQueue.push(gradient);
-    
-    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop(.6, '#F0F');
-    gradient.addColorStop(.7, '#0F0');
-    _gradientQueue.push(gradient);
-    
-    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop(.7, '#F0F');
-    gradient.addColorStop(.8, '#0F0');
-    _gradientQueue.push(gradient);
-    
-    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop(.8, '#F0F');
-    gradient.addColorStop(.9, '#0F0');
-    _gradientQueue.push(gradient);
-    
-    gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop(.9, '#F0F');
-    gradient.addColorStop(1, '#0F0');
-    _gradientQueue.push(gradient);
-    
     // Finish with purple
     gradient = ctx.createLinearGradient(x1, y1, x2, y2);
     gradient.addColorStop(0, '#F0F');
