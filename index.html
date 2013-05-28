@@ -217,39 +217,20 @@
       });
 
   // Bind onclick watching
-  body.onmousedown = _eventWrapper(function (e) {
+  body.ontouchstart = body.onmousedown = _eventWrapper(function (e) {
     // Stop normal default behavior/bubbling
     e.stopNormal();
 
     // Memoize current location
-    lastX = nextX = e.clientX;
-    lastY = nextY = e.clientY;
+    lastX = nextX = e.clientX || e.touches[0].clientX;
+    lastY = nextY = e.clientY || e.touches[0].clientY;
 
     // Change header text
     header.innerHTML = headerMoveText;
 
     // Bind any motion and halting
-    body.onmousemove = _moveFn;
-    body.onmouseup = _upFn;
-    drawing = true;
-    drawHeatStroke();
-  });
-
-  // Bind onclick watching
-  body.ontouchstart = _eventWrapper(function (e) {
-    // Stop normal default behavior/bubbling
-    e.stopNormal();
-
-    // Memoize current location
-    lastX = nextX = e.touches[0].clientX;
-    lastY = nextY = e.touches[0].clientY;
-
-    // Change header text
-    header.innerHTML = headerMoveText;
-
-    // Bind any motion and halting
-    body.ontouchmove = _moveFn;
-    body.ontouchend = _upFn;
+    body.ontouchmove = body.onmousemove = _moveFn;
+    body.ontouchend = body.onmouseup = _upFn;
     drawing = true;
     drawHeatStroke();
   });
