@@ -46,7 +46,7 @@
   // Set canvas to full screen
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
-  
+
   // Set brush width to thick
   ctx.lineWidth = 20;
   ctx.lineCap = 'round';
@@ -199,8 +199,8 @@
         e.stopNormal();
 
         // Mark the stroke down
-        nextX = e.clientX;
-        nextY = e.clientY;
+        nextX = e.clientX || e.touches[0].clientX;
+        nextY = e.clientY || e.touches[0].clientY;
       }),
 
       _upFn = _eventWrapper(function (e) {
@@ -231,6 +231,25 @@
     // Bind any motion and halting
     body.onmousemove = _moveFn;
     body.onmouseup = _upFn;
+    drawing = true;
+    drawHeatStroke();
+  });
+
+  // Bind onclick watching
+  body.ontouchstart = _eventWrapper(function (e) {
+    // Stop normal default behavior/bubbling
+    e.stopNormal();
+
+    // Memoize current location
+    lastX = nextX = e.touches[0].clientX;
+    lastY = nextY = e.touches[0].clientY;
+
+    // Change header text
+    header.innerHTML = headerMoveText;
+
+    // Bind any motion and halting
+    body.ontouchmove = _moveFn;
+    body.ontouchend = _upFn;
     drawing = true;
     drawHeatStroke();
   });
